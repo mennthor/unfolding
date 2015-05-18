@@ -1,6 +1,6 @@
 import numpy as np
 
-def double_gaus(N=10000, locL=1., locR=2., sigmaL=.3, sigmaR=.3, sigmaS=.1):
+def double_gaus(N=10000, locL=1., locR=2., sigmaL=.3, sigmaR=.3, sigmaS=.2):
 	"""
 	Returns N true and measured test data points. The true function is a
 	double normal distribution at locR and locR with stddev sigmaL and sigmaR.
@@ -16,7 +16,7 @@ def double_gaus(N=10000, locL=1., locR=2., sigmaL=.3, sigmaR=.3, sigmaS=.1):
 	measured = true + np.random.normal(0., sigmaS, N)
 
 	# acceptance
-	measured += 0.2 * (true - 1.)**2
+	measured += 0.2 * (true - 2.)**2
 
 	return measured, true
 
