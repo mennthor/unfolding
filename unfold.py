@@ -181,18 +181,23 @@ class Blobel():
 			Single value of the neg log-likelihood function for the given
 			parameters.
 			"""
-			# Effectively constrain to positive coefficents by pushing up the neg log-likelihood when aj<0 occurs
-			# if np.any(a < 0):
-			# 	return np.inf
+			# Only for unbounded methods: push up the negllh for parameters a<0 to restrict to positive values of a
+			if np.any(a < 0):
+				return np.inf
+
 			# Calculate the value of g(y) for the current coefficents
 			g_fitted = np.dot(self.A, a)
 
+			## Effectively constrain to positive coefficents by pushing up the neg log-likelihood when aj<0 occurs
+			# Init with 0. If none of the below is true this is either the case lim x->0 (x*log x) = 0 or 0*log(non-zero) = 0
 			measxlog = np.zeros_like(g_fitted)
 			for i in range(len(g_fitted)):
-				if (g_meas[i]!=0) & (g_fitted[i]==0):
+				# Case: non-zero value * log(0) = -inf -> return +inf for negllh
+				if (g_meas[i]>0) & (g_fitted[i]<=0):
 					return np.inf
-				if (g_meas[i]==0) & (g_fitted[i]!=0):
-					measxlog = g_meas * np.log(g_fitted)
+				# Case: if both values are non-zero/finite then just calculate normally
+				if (g_meas[i]>0) & (g_fitted[i]>0):
+					measxlog[i] = g_meas[i] * np.log(g_fitted[i])
 
 			return np.sum( g_fitted - measxlog )
 
@@ -205,19 +210,25 @@ class Blobel():
 			)
 
 		# Fit coefficients a, starting from aj = 1 for every j. Coefficients must be positive.
-		bounds = [[0, None] for i in range(self.n_splines)]
+		# bounds = [[0, None] for i in range(self.n_splines)]
+		x0 = np.ones_like(self.spline_coeff)
+		x0.fill(1.1)
 		opt_res = sco.minimize(
 			negllh,
-			x0=np.ones_like(self.spline_coeff),
+			x0=x0,
 			args=(g_meas),
-			bounds=bounds,
-			method="SLSQP"
+			# bounds=bounds,
+			method="Powell"
 			)
 
 		# Get the basis function coefficients from the result
 		spline_true_coeff = opt_res.x
 
-		return spline_true_coeff
+		print "Succes: {}".format(opt_res.success)
+		print "Num of iter: {}".format(opt_res.nit)
+
+		# Return tck tuple for scipy.interpolate.splev
+		return (self.spline_knots, spline_true_coeff, self.spline_deg)
 
 
 

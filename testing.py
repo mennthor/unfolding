@@ -40,8 +40,7 @@ A = blobel_unfold.build_response_matrix(measured, true)
 
 ###################################
 ## Fit the basis function coefficients to get the unfolded function f(x)
-spline_true_coeff = blobel_unfold.fit_basis_coefficents(measured)
-print spline_true_coeff
+tck = blobel_unfold.fit_basis_coefficents(measured)
 
 
 ####################################
@@ -63,6 +62,9 @@ plt.plot(x, norm_truth * pdf, "k-", lw=1, color="red", label="true pdf (renormed
 plt.hist(true, bins=bins_meas, normed=False, label="mc_truth", histtype='stepfilled', color="grey", alpha=.5)
 plt.hist(measured, bins=bins_meas, normed=False, label="mc_meas", histtype='stepfilled', color="blue", alpha=.2)
 
+# Plot the unfolded function f(x) from the fitted coefficents aj
+plt.plot(x, norm_truth*sci.splev(x, (tck), ext=1), color="red", lw=2, label="unfolded")
+
 # Plot parameters
 plt.xlim(-0.5, 3.5)
 plt.xlabel("x")
@@ -70,5 +72,5 @@ plt.ylabel("num of entries")
 plt.title("Decomposition of measured MC in basis functions")
 plt.legend(loc="best")
 
-# plt.show()
+plt.show()
 
