@@ -58,10 +58,6 @@ class Blobel():
 		self.cols = self.n_splines
 		self.A = np.zeros([self.rows, self.cols])
 
-		print "# Num of bins measured: {}".format(self.rows)
-		print "# Num of splines: {}".format(self.cols)
-		print "# Shape of A: {}".format(np.shape(self.A))
-
 		## calculate spline representation of mc_truth f(x).
 		# Every column Aj is a histogram mc_meas in y with binning bins_meas, if f(x) would be described by only one single basis function pj. To get the correct representation, set the histogram weights proportional to the basis function pj. This way, if we add up all hisotgrams Aj, we get the original distribution mc_meas. The correct weights (spline coefficients) aj, which really describe f(x) are found later with the maximum likelihood fit. Here we only create a histogram for every basis function.
 		self.spline_coeff = np.zeros(self.cols)
