@@ -15,7 +15,7 @@ x = pdfvals[0]
 pdf = pdfvals[1]
 
 # Set binning of measured MC (after detector sim) in variable y. Doesn't have to be euqidistant.
-bins_meas = np.linspace(0.0, 3.0, 30)
+bins_meas = np.linspace(0.0, 3.0, 20)
 n_bins_meas = len(bins_meas - 1)
 # Final binning of the unfolded function f(x) AFTER the unfolding and llh fit. Doesn't have to be equal to bins_meas. Not to be confused with the spline knots, which describe the intital discretization of the MC truth f0(x) to build the response matrix.
 bins_unfold = np.linspace(0.0, 3.0, 11)
@@ -34,13 +34,14 @@ blobel_unfold = unfold.Blobel(bins_meas, bins_unfold, inner_spline_knots)
 # The function create_response_matrix returns the response matrix Aij which maps the true variable x to the measured variable y
 A = blobel_unfold.build_response_matrix(measured, true)
 
-np.set_printoptions(precision=3, suppress=True, linewidth=200)
-print(A)
+# np.set_printoptions(precision=3, suppress=True, linewidth=200)
+# print(A)
+
 
 ###################################
 ## Fit the basis function coefficients to get the unfolded function f(x)
-# spline_true_coeff = blobel_unfold.fit_basis_coefficents(measured)
-# print spline_true_coeff
+spline_true_coeff = blobel_unfold.fit_basis_coefficents(measured)
+print spline_true_coeff
 
 
 ####################################
@@ -69,5 +70,5 @@ plt.ylabel("num of entries")
 plt.title("Decomposition of measured MC in basis functions")
 plt.legend(loc="best")
 
-plt.show()
+# plt.show()
 
