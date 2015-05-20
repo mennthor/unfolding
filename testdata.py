@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.stats as scs
 
 def double_gaus(N=10000, locL=1., locR=2., sigmaL=.3, sigmaR=.2, sigmaS=.2):
 	"""
@@ -19,5 +20,11 @@ def double_gaus(N=10000, locL=1., locR=2., sigmaL=.3, sigmaR=.2, sigmaS=.2):
 	# acceptance
 	measured += 0.2 * (true - 2.)**2
 
-	return measured, true
+	# Also return the generating true pdf
+	x = np.linspace(-0.5, 3.5, 500)
+	pdf = np.zeros([2, len(x)])
+	pdf[0] = x
+	pdf[1] = .5 * (scs.norm.pdf(x, loc=1., scale=.3) + scs.norm.pdf(x, loc=2., scale=.2))
+
+	return measured, true, pdf
 
