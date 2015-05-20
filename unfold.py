@@ -204,8 +204,6 @@ class Blobel():
 			normed=False
 			)
 
-		print negllh(np.ones_like(self.spline_coeff), g_meas)
-
 		# Fit coefficients a, starting from aj = 1 for every j. Coefficients must be positive.
 		bounds = [[0, None] for i in range(self.n_splines)]
 		opt_res = sco.minimize(
