@@ -1,3 +1,4 @@
+from __future__ import print_function, division
 import numpy as np
 import scipy.interpolate as sci
 import scipy.optimize as sco
@@ -43,13 +44,13 @@ class Blobel():
 
 		## Add necessary outer knots by repeating the first and last knot spline_deg times. Used from splines/bsplines.py.
 		# Switch the outer knots creation technique
-		mirror = False
+		mirror = True
 		pre = np.zeros(self.spline_deg)
 		post = np.zeros(self.spline_deg)
 		if mirror:
 			# Mirror internal knots at t0, tn-1
-			pre = ( t[0] - (t[1:nouter+1] - t[0]) )[::-1]
-			post = ( t[-1] + (t[-1] - t[-nouter-1:-1]) )[::-1]
+			pre = ( t[0] - (t[1:self.spline_deg+1] - t[0]) )[::-1]
+			post = ( t[-1] + (t[-1] - t[-self.spline_deg-1:-1]) )[::-1]
 		else:
 			# Just repeat the outermost knots p times each
 			pre.fill(t[0])
@@ -106,16 +107,19 @@ class Blobel():
 			self.spline_coeff[j] = 1
 			# Set the hist weight for Aj(y) proportional to pj(x)
 			tck = (self.spline_knots, self.spline_coeff, self.spline_deg)
-			basis_hist_weights = sci.splev(mc_meas, tck, ext=1)
+			basis_hist_weights = sci.splev(mc_truth, tck, ext=1)
 			# Bin the measured MC with basis_hist_weights according to f0(x)=pj(x)
 			hist, bins = np.histogram(
 				mc_meas,
 				bins=self.bins_meas,
 				range=(self.bins_meas[0], self.bins_meas[1]),
-				normed=False,
+				density=False,
 				weights = basis_hist_weights
 				)
 			self.A[:, j] = hist
+
+		self.A = self.A / self.A.sum(axis=1)[:,np.newaxis]
+		self.A = self.A * np.diff(bins)[:,np.newaxis]
 
 		return self.A
 
@@ -188,11 +192,11 @@ class Blobel():
 			# Calculate the value of g(y) for the current coefficents
 			g_fitted = np.dot(self.A, a)
 
-			## Effectively constrain to positive coefficents by pushing up the neg log-likelihood when aj<0 occurs
+			## Catch log(0) cases
 			# Init with 0. If none of the below is true this is either the case lim x->0 (x*log x) = 0 or 0*log(non-zero) = 0
 			measxlog = np.zeros_like(g_fitted)
 			for i in range(len(g_fitted)):
-				# Case: non-zero value * log(0) = -inf -> return +inf for negllh
+				# Case: non-zero * log(0) = -inf -> return +inf for negllh
 				if (g_meas[i]>0) & (g_fitted[i]<=0):
 					return np.inf
 				# Case: if both values are non-zero/finite then just calculate normally
@@ -206,26 +210,24 @@ class Blobel():
 			mc_meas,
 			bins=self.bins_meas,
 			range=(self.bins_meas[0], self.bins_meas[1]),
-			normed=False
+			density=True
 			)
 
 		# Fit coefficients a, starting from aj = 1 for every j. Coefficients must be positive.
 		# bounds = [[0, None] for i in range(self.n_splines)]
 		x0 = np.ones_like(self.spline_coeff)
-		x0.fill(1.1)
+		# x0.fill(1.1)
 		opt_res = sco.minimize(
 			negllh,
 			x0=x0,
 			args=(g_meas),
+			# jac=False,
 			# bounds=bounds,
 			method="Powell"
 			)
 
 		# Get the basis function coefficients from the result
 		spline_true_coeff = opt_res.x
-
-		print "Succes: {}".format(opt_res.success)
-		print "Num of iter: {}".format(opt_res.nit)
 
 		# Return tck tuple for scipy.interpolate.splev
 		return (self.spline_knots, spline_true_coeff, self.spline_deg)
