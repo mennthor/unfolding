@@ -4,7 +4,7 @@ import scipy.interpolate as sci
 import numpy as np
 import matplotlib.pyplot as plt
 
-import testdata
+import datagen
 import unfold
 
 

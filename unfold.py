@@ -93,8 +93,10 @@ class Blobel():
 				 or in coordinate form:
 				 gi(y) = sum_j (Aij * pj)
 		"""
-		# Init response matrix Aij
+		## Init response matrix Aij
+		# Number of rows is determined by the binning in y of the measured distribution
 		rows = len(self.bins_meas) - 1
+		# Each coloum j represents one basis function pj(x), so the number of splines is the number of coloums
 		cols = self.n_splines
 		self.A = np.zeros([rows, cols])
 
@@ -232,6 +234,9 @@ class Blobel():
 		# Return tck tuple for scipy.interpolate.splev
 		return (self.spline_knots, spline_true_coeff, self.spline_deg)
 
+
+ def bin_target_distribution(self):
+ 	#TODO
 
 
 
