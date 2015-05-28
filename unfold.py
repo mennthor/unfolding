@@ -48,7 +48,7 @@ class Blobel():
 
 		## Add necessary outer knots by repeating the first and last knot spline_deg times. Used from splines/bsplines.py.
 		# Switch the outer knots creation technique
-		extend = True
+		extend = False
 		pre = np.zeros(self.spline_deg)
 		post = np.zeros(self.spline_deg)
 		if extend:
@@ -118,24 +118,24 @@ class Blobel():
 			# Set the hist weights for the histogram filled in Aj(y) proportional to pj(x). ext=1 cuts off to 0 outside the knots.
 			tck = (self.spline_knots, self.spline_coeff, self.spline_deg)
 			basis_hist_weights = sci.splev(mc_truth, tck, ext=1)
-			# Bin the measured MC with basis_hist_weights according to f0(x)=pj(x). The first and last entry in bins_meas define the borders. Points outside are ignored by numpy.histogram
+			# Bin the measured MC with basis_hist_weights according to f0(x)=pj(x). The first and last entry in bins_meas define the borders, points outside are ignored by numpy.histogram.
 			hist, _ = np.histogram(
 				mc_meas,
 				bins=self.bins_meas,
 				density=False,
-				weights = basis_hist_weights
+				weights=basis_hist_weights
 				)
 			# Fill the created histogram to the jth column of A. In every column j of A is the binned distribution of g(y) weighted with pj(x).
 			self.A[:, j] = hist
 
 		# Normalization constant to normalize g(y) to 1 to represent a pdf. So every entry in A has to be divided by this number.
-		# norm = np.dot(
-		# 	np.histogram(mc_meas, self.bins_meas, density=False)[0],
-		# 	np.diff(self.bins_meas)
-		# 	)
-		# self.A /= norm
+		norm = np.dot(
+			np.histogram(mc_meas, self.bins_meas, density=False)[0],
+			np.diff(self.bins_meas)
+			)
+		self.A /= norm
 
-		#  Normalization ansatz of Max Noethe:
+		#  Normalization ansatz by Max Noethe:
 		# rowsums = self.A.sum(axis=1)[:,np.newaxis]
 		# binwidth = np.diff(self.bins_meas)[:,np.newaxis]
 		# self.A = self.A / rowsums
@@ -193,7 +193,7 @@ class Blobel():
 			args=(g_meas),
 			# jac=False,
 			# bounds=bounds,
-			method="Powell"
+			method="Nelder-Mead"
 			)
 
 		# Get the basis function coefficients from the fit result
@@ -270,11 +270,6 @@ class Blobel():
 			# Case: if both values are non-zero/finite then just calculate normally
 			if (g_meas[i]>0) & (g_fitted[i]>0):
 				measxlog[i] = g_meas[i] * np.log(g_fitted[i])
-
-		# Regularization
-		tau = 2.
-		C = np.zeros([len(a), len(a)])
-		reg = 0.5 * tau * np.dot(a.T, np.dot(C, a))
 
 		return np.sum( g_fitted - measxlog )
 

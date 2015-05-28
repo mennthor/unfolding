@@ -11,16 +11,16 @@ import unfold
 ###################################
 ## Set the binning
 # Get testdata
-measured, true, pdfvals, bins = datagen.example()
-# measured, true, pdfvals = datagen.uniform()
-# measured, true, pdfvals, bins = datagen.gaus()
-# measured, true, pdfvals, bins = datagen.double_gaus()
+# measured, true, pdfvals, bins = datagen.example()
+measured, true, pdfvals, bins = datagen.uniform(n_bins_meas=20)
+# measured, true, pdfvals, bins = datagen.gaus(n_bins_meas=20)
+# measured, true, pdfvals, bins = datagen.double_gaus(n_bins_meas=20)
 x = pdfvals[0]
 pdf = pdfvals[1]
 
 # Set binning of measured MC (after detector sim) in variable y. Doesn't have to be equidistant, but try to avoid empty bins, if possible.
 bins_meas = bins
-n_bins_meas = len(bins_meas)-1
+n_bins_meas = len(bins_meas) - 1
 # Final binning of the unfolded function f(x) AFTER the unfolding and llh fit. Doesn't have to be equal to bins_meas. Not to be confused with the spline knots, which describe the intital discretization of the MC truth f0(x) to build the response matrix.
 bins_unfold = np.linspace(0.0, 3.0, 10)
 n_bins_unfold = len(bins_unfold) - 1
@@ -46,12 +46,12 @@ tck = blobel_unfold.fit_basis_coefficents(measured)
 ## Print unfolding parameters
 # print(blobel_unfold)
 ## Show the response matrix
-if False:
+if True:
 	np.set_printoptions(precision=3, suppress=True, linewidth=200)
 	print("## Response matrix A:\n{}".format(A))
 	matfig, matax = plt.subplots(1, 1, facecolor="#E0E0E0")
 	cmap = plt.get_cmap("gist_heat")
-	matcax = matax.matshow(A, cmap=cmap)#, vmin=0, vmax=1)
+	matcax = matax.matshow(A, cmap=cmap, vmin=0)#, vmax=1)
 	matax.set_xlabel("jth column represents the jth spline function")
 	matax.set_ylabel("ith row is ith bin in y")
 	matfig.suptitle("Entries of response matrix A", fontsize=16)
@@ -61,7 +61,7 @@ if False:
 
 ## Plot the columns Aj of A containing the histograms of mc_meas when f0(x)=pj(x). The sum should be the distribution mc_meas.
 n_splines = np.shape(A)[1]
-if False:
+if True:
 	plt.figure()
 	for j in range(n_splines):
 		# where="post" with the last entry doubled gives the same plot as plt.hist() with histtype=step.
@@ -75,7 +75,7 @@ if False:
 	plt.title("Decomposition of measured MC in basis functions")
 	plt.legend(loc="best")
 
-## Compare with mc_meas, mc_truth and true pdf. Renorm pdf to fit the hists.
+## Compare with mc_meas and mc_truth
 if True:
 	plt.figure()
 	# MC truth and measured
