@@ -12,9 +12,9 @@ import unfold
 ## Set the binning
 # Get testdata
 # measured, true, pdfvals, bins = datagen.example()
-measured, true, pdfvals, bins = datagen.uniform(n_bins_meas=20)
+# measured, true, pdfvals, bins = datagen.uniform(n_bins_meas=20)
 # measured, true, pdfvals, bins = datagen.gaus(n_bins_meas=20)
-# measured, true, pdfvals, bins = datagen.double_gaus(n_bins_meas=20)
+measured, true, pdfvals, bins = datagen.double_gaus(n_bins_meas=20)
 x = pdfvals[0]
 pdf = pdfvals[1]
 
@@ -25,7 +25,7 @@ n_bins_meas = len(bins_meas) - 1
 bins_unfold = np.linspace(0.0, 3.0, 10)
 n_bins_unfold = len(bins_unfold) - 1
 # Position of the inner bspline knots to represent f0(x). Doesn't have to be equally spaced or the same as the binning.
-inner_spline_knots = np.linspace(bins_meas[0], bins_meas[-1], 8)
+inner_spline_knots = np.linspace(bins_meas[1], bins_meas[-2], 8)
 
 
 ###################################
@@ -79,11 +79,11 @@ if True:
 if True:
 	plt.figure()
 	# MC truth and measured
-	plt.hist(true, bins=bins_meas, normed=False, label="mc_truth", histtype='stepfilled', color="grey", alpha=.5)
-	plt.hist(measured, bins=bins_meas, normed=False, label="mc_meas", histtype='stepfilled', color="blue", alpha=.2)
+	plt.hist(true, bins=bins_meas, normed=True, label="mc_truth", histtype='stepfilled', color="grey", alpha=.5)
+	plt.hist(measured, bins=bins_meas, normed=True, label="mc_meas", histtype='stepfilled', color="blue", alpha=.2)
 
 	# Plot the spline composition
-	norm = np.sum(np.histogram(true, bins_meas)[0])/n_bins_meas
+	norm = 1.#np.sum(np.histogram(true, bins_meas)[0])/n_bins_meas
 	y = np.zeros([n_splines, len(x)])
 	for j in range(n_splines):
 		coeff = np.zeros(n_splines)

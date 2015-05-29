@@ -84,7 +84,7 @@ def example():
 	"""
 	Returns 9000 points each of a uniformly distributed truth and a
 	gaussian measured distribution centered in the middle of the intervall
-	with FIXED values.
+	with FIXED values and binning.
 	"""
 	N=9000
 	#true distribution -> uniform between 0 and 3

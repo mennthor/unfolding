@@ -48,7 +48,7 @@ class Blobel():
 
 		## Add necessary outer knots by repeating the first and last knot spline_deg times. Used from splines/bsplines.py.
 		# Switch the outer knots creation technique
-		extend = False
+		extend = True
 		pre = np.zeros(self.spline_deg)
 		post = np.zeros(self.spline_deg)
 		if extend:
@@ -129,16 +129,16 @@ class Blobel():
 			self.A[:, j] = hist
 
 		# Normalization constant to normalize g(y) to 1 to represent a pdf. So every entry in A has to be divided by this number.
-		norm = np.dot(
-			np.histogram(mc_meas, self.bins_meas, density=False)[0],
-			np.diff(self.bins_meas)
-			)
-		self.A /= norm
+		# norm = np.dot(
+		# 	np.histogram(mc_meas, self.bins_meas, density=False)[0],
+		# 	np.diff(self.bins_meas)
+		# 	)
+		# self.A /= norm
 
 		#  Normalization ansatz by Max Noethe:
-		# rowsums = self.A.sum(axis=1)[:,np.newaxis]
+		rowsums = self.A.sum(axis=1)[:,np.newaxis]
 		# binwidth = np.diff(self.bins_meas)[:,np.newaxis]
-		# self.A = self.A / rowsums
+		self.A = self.A / rowsums
 		# self.A = self.A * binwidth
 
 		return self.A
