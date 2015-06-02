@@ -14,7 +14,7 @@ import unfold
 # measured, true, pdfvals, bins = datagen.example()
 # measured, true, pdfvals, bins = datagen.uniform(n_bins_meas=20)
 # measured, true, pdfvals, bins = datagen.gaus(n_bins_meas=20)
-measured, true, pdfvals, bins = datagen.double_gaus(n_bins_meas=20)
+# measured, true, pdfvals, bins = datagen.double_gaus(n_bins_meas=20)
 x = pdfvals[0]
 pdf = pdfvals[1]
 

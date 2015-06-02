@@ -59,7 +59,30 @@ def gaus(N=10000, loc=2., sigma=.2, sigmaS=.5, n_bins_meas=10):
 	return measured, true, pdf, default_binning
 
 
-def uniform(N=10000, left=0., right=3., sigma=.5, n_bins_meas=10):
+
+def uniform(N=10000, left=0., right=3., n_bins_meas=10):
+	"""
+	Returns a uniformly distributed truth in [left,right] and exactly the
+	same measured distribution.
+	"""
+	#true distribution
+	true = np.random.uniform(left, right, N)
+	# measured distribution
+	measured = true
+	# Also return the generating true pdf
+	x = np.linspace(-1, 5, 500)
+	pdf = np.zeros([2, len(x)])
+	pdf[0] = x
+	pdf[1] = scs.uniform.pdf(x, left, right-left)
+	# Default binning
+	default_binning = np.linspace(np.amin(measured), np.amax(measured), n_bins_meas)
+
+	return measured, true, pdf, default_binning
+
+
+
+
+def gaus2(N=10000, left=0., right=3., sigma=.5, n_bins_meas=10):
 	"""
 	Returns a uniformly distributed truth in [left,right] and a gaussian
 	measured distribution centered in the middle of the intervall [left,right]
