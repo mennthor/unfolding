@@ -46,7 +46,7 @@ tck = blobel_unfold.fit_basis_coefficents(measured)
 ## Print unfolding parameters
 # print(blobel_unfold)
 ## Show the response matrix
-if True:
+if False:
 	np.set_printoptions(precision=3, suppress=True, linewidth=200)
 	print("## Response matrix A:\n{}".format(A))
 	matfig, matax = plt.subplots(1, 1, facecolor="#E0E0E0")
@@ -61,7 +61,7 @@ if True:
 
 ## Plot the columns Aj of A containing the histograms of mc_meas when f0(x)=pj(x). The sum should be the distribution mc_meas.
 n_splines = np.shape(A)[1]
-if True:
+if False:
 	plt.figure()
 	for j in range(n_splines):
 		# where="post" with the last entry doubled gives the same plot as plt.hist() with histtype=step.

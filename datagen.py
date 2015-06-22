@@ -1,13 +1,17 @@
+# -*-coding:utf8-*-
+
 import numpy as np
 import scipy.stats as scs
 
-# Provides several functions that generate test data to check the unfolding algortihm.
+"""
+Provides several functions that generate test data to check the unfolding algortihm.
+"""
 
 def double_gaus(N=10000, locL=1., locR=2., sigmaL=.3, sigmaR=.2, sigmaS=.2, n_bins_meas=10):
 	"""
 	Returns N true and measured test data points, the generating true pdf and
 	a default binning which avoids empty bins in the measured variable.
-	The true function is adouble normal distribution at locR and locR
+	The true function is a double normal distribution at locR and locR
 	with stddev sigmaL and sigmaR. The truth gets smeared with a normal
 	distribution with sigmaS and additionally shifted.
 	"""
@@ -27,6 +31,26 @@ def double_gaus(N=10000, locL=1., locR=2., sigmaL=.3, sigmaR=.2, sigmaS=.2, n_bi
 	pdf[1] = .5 * (scs.norm.pdf(x, loc=locL, scale=sigmaL) \
 				 + scs.norm.pdf(x, loc=locR, scale=sigmaR))
 
+	# Default binning
+	default_binning = np.linspace(np.amin(measured), np.amax(measured), n_bins_meas)
+
+	return measured, true, pdf, default_binning
+
+
+def uniform(N=10000, left=0., right=3., n_bins_meas=10):
+	"""
+	Returns a uniformly distributed truth in [left,right] and exactly the
+	same measured distribution.
+	"""
+	# true distribution
+	true = np.random.uniform(left, right, N)
+	# measured distribution
+	measured = true
+	# Also return the generating true pdf
+	x = np.linspace(-1, 5, 500)
+	pdf = np.zeros([2, len(x)])
+	pdf[0] = x
+	pdf[1] = scs.uniform.pdf(x, left, right-left)
 	# Default binning
 	default_binning = np.linspace(np.amin(measured), np.amax(measured), n_bins_meas)
 
@@ -57,29 +81,6 @@ def gaus(N=10000, loc=2., sigma=.2, sigmaS=.5, n_bins_meas=10):
 	default_binning = np.linspace(np.amin(measured), np.amax(measured), n_bins_meas)
 
 	return measured, true, pdf, default_binning
-
-
-
-def uniform(N=10000, left=0., right=3., n_bins_meas=10):
-	"""
-	Returns a uniformly distributed truth in [left,right] and exactly the
-	same measured distribution.
-	"""
-	#true distribution
-	true = np.random.uniform(left, right, N)
-	# measured distribution
-	measured = true
-	# Also return the generating true pdf
-	x = np.linspace(-1, 5, 500)
-	pdf = np.zeros([2, len(x)])
-	pdf[0] = x
-	pdf[1] = scs.uniform.pdf(x, left, right-left)
-	# Default binning
-	default_binning = np.linspace(np.amin(measured), np.amax(measured), n_bins_meas)
-
-	return measured, true, pdf, default_binning
-
-
 
 
 def gaus2(N=10000, left=0., right=3., sigma=.5, n_bins_meas=10):
