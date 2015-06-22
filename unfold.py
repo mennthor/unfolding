@@ -6,9 +6,9 @@ import scipy.optimize as sco
 
 class Blobel():
 	"""
-	Unfolding method after Blobel:
-	Used names in this class:
+	Unfolding method after Blobel.
 
+	Used names in this class:
 	- f0(x): True distribution before detection MC simulation. Used to build
 			 the response matrix A by mapping f0(x) to g(y).
 	- g(y): Measured MC distribution after running the simulation on f0(x).
@@ -17,23 +17,25 @@ class Blobel():
 			from the basis functions used to describe f0(x) and the optimal
 			coefficients aj calculated by the likelihodd fit.
 
-	Input
-	-----
-
-	- bins_meas: Array which sets the binning for all functions dependent on
-				 the measured varible y (measured MC). The first and last
-				 values define the range of y in which the unfolding operates.
-	- bins_unfold: Array which sets the binning of the target function f(x)
-				   AFTER the unfolding. The binning is applied to the spline
-				   representation of f(x) to get single points with error
-				   estimation. The first and last values define the range
-				   of x in which the target function is defined.
-	- t: Array containing the inner knots for the (cubic) bspline
-		 basis functions which are used to represent f0(x). The
-		 spline representation is used to discretize the true MC
-		 f0(x) to build the response matrix Aij. The necessary outer
-		 knots are created by repeating the outermost knots
-		 spline_degree times.
+	Parameters
+	----------
+	bins_meas : array-like
+		Array which sets the binning for all functions dependent on
+		the measured varible y (measured MC). The first and last
+		values define the range of y in which the unfolding operates.
+	bins_unfold : array-like
+		Array which sets the binning of the target function f(x)
+		AFTER the unfolding. The binning is applied to the spline
+		representation of f(x) to get single points with error
+		estimation. The first and last values define the range
+		of x in which the target function is defined.
+	t : array-like
+		Array containing the inner knots for the (cubic) bspline
+		basis functions which are used to represent f0(x). The
+		spline representation is used to discretize the true MC
+		f0(x) to build the response matrix Aij. The necessary outer
+		knots are created by repeating the outermost knots
+		spline_degree times.
 	"""
 	def __init__(self, bins_meas, bins_unfold, t):
 		self.bins_meas = bins_meas
@@ -69,7 +71,9 @@ class Blobel():
 
 	def build_response_matrix(self, mc_meas, mc_truth):
 		"""
-		Builds the response matrix Aij. i is the number of bins_meas and
+		Builds the response matrix Aij.
+
+		i is the number of bins_meas and
 		j is the number of spline_knots. To get Aij we use the MC truth
 		and measured MC to track how the BASIS FUNCTIONS pj(x) are mapped to
 		g(y). This is equivalent to setting all aj = 1. Therefore, the resulting
@@ -78,25 +82,26 @@ class Blobel():
 		The aj are later determined in a likelihood fit to get the best
 		possible mapping from g(y) to f(x) via A.
 
-		Input
-		-----
-
-		- mc_truth: True data before the MC detection simulation. f0(x) is
-				    the assumed distribution of the true data.
-		- mc_meas: MC data after the detection simulation resulting from
-				   mc_truth. g(y) is the measured distribution obtained
-				   from simulation based on the true distribution f0(x) and
-				   describes the measured values obtained from the detector.
+		Parameters
+		----------
+		mc_truth : array-like
+			True data before the MC detection simulation. f0(x) is
+			the assumed distribution of the true data.
+		mc_meas : array-like
+			MC data after the detection simulation resulting from
+			mc_truth. g(y) is the measured distribution obtained
+			from simulation based on the true distribution f0(x) and
+			describes the measured values obtained from the detector.
 
 		Returns
 		-------
-
-		- A: Response matrix, describing the mapping from the basis functions
-			 pj(x) of the true distribution f0(x) = sum_j aj*pj(x) to the
-			 measured distribution g(y). The mapping function is:
-				 vec{g}(y) = mat{A} * vec{p}
-				 or in coordinate form:
-				 gi(y) = sum_j (Aij * pj)
+		A : array-like
+			Response matrix, describing the mapping from the basis functions
+			pj(x) of the true distribution f0(x) = sum_j aj*pj(x) to the
+			measured distribution g(y). The mapping function is:
+				vec{g}(y) = mat{A} * vec{p}
+			or in coordinate form:
+				gi(y) = sum_j (Aij * pj)
 		"""
 		## Init response matrix Aij
 		# Number of rows is determined by the binning in y of the measured distribution
@@ -149,6 +154,7 @@ class Blobel():
 		"""
 		Returns the optimal fitting spline coefficents which represent the
 		unfolded distribution f(x).
+
 		The response matrix was created before with the assumption that
 		aj = 1 for every j. Therefore we get the response matrix A decoupled
 		from the coefficients aj. The aj are now chosen via a likelihood fit
@@ -160,21 +166,22 @@ class Blobel():
 		The whole information about the true MC distribution f0(x) is already
 		included in the response matrix A at this stage.
 
-		Inout
-		-----
+		Parameters
+		----------
 
-		- mc_meas: MC data after the detection simulation resulting from
-				   mc_truth. g(y) is the measured distribution obtained
-				   from simulation based on the true distribution f0(x) and
-				   describes the measured values obtained from the detector.
+		mc_meas : array-like
+			MC data after the detection simulation resulting from
+			mc_truth. g(y) is the measured distribution obtained
+			from simulation based on the true distribution f0(x) and
+			describes the measured values obtained from the detector.
 
 		Returns
 		-------
-
-		- tck: Tuple of (spline_knots, spline_true_coeff, spline_degree) from
-			   the fit describing optimally the mapping from f(x) to g(y). Use
-				   scipy.splev(x, tck,	ext=1)
-			   to obtain the unfolded true function f(x).
+		tck : tuple
+			Tuple of (spline_knots, spline_true_coeff, spline_degree) from
+			the fit describing optimally the mapping from f(x) to g(y). Use
+				scipy.splev(x, tck,	ext=1)
+			to obtain the unfolded true function f(x).
 		"""
 		# Get the binned measured values gi(y) from the measured MC distribtuion
 		g_meas, _ = np.histogram(
@@ -208,20 +215,23 @@ class Blobel():
 		"""
 		Returns the chi-square function value for given values
 		of the basis function coefficients aj and the measured
-		values g_meas. The fitted values g_fitted are calculated by the
+		values g_meas.
+
+		The fitted values g_fitted are calculated by the
 		matrix equation:
 			vec{g}_fitted(a) = mat{A} * vec{a}
 
-		Input
-		-----
-
-		- a: Coefficent array at which the chi-square is evaluated.
-		- g_meas: Measured MC values.
+		Parameters
+		----------
+		a : array-like
+			Coefficent array at which the chi-square is evaluated.
+		g_meas : array-like
+			Contains measured MC values.
 
 		Returns
 		-------
-
-		Single value of the chi-square function for the given parameters.
+		chi2 : float
+			Single value of the chi-square function for the given parameters.
 		"""
 		# Only for unbounded methods: push up the negllh for parameters a<0 to effectively restrict to positive values of a
 		if np.any(a < 0):
@@ -237,21 +247,24 @@ class Blobel():
 		"""
 		Returns the negative log-likelihood function value for given
 		values of the basis function coefficients aj and the measured
-		values g_meas. The fitted values g_fitted are calculated by the
+		values g_meas.
+
+		The fitted values g_fitted are calculated by the
 		matrix equation:
 			vec{g}_fitted(a) = mat{A} * vec{a}
 
-		Input
-		-----
-
-		- a: Coefficent array at which the neg log-likelihood is evaluated.
-		- g_meas: Measured MC values.
+		Parameters
+		----------
+		a : array-like
+			Coefficent array at which the chi-square is evaluated.
+		g_meas : array-like
+			Contains measured MC values.
 
 		Returns
 		-------
-
-		Single value of the neg log-likelihood function for the given
-		parameters.
+		negllh : float
+			Single value of the neg log-likelihood function for the given
+			parameters.
 		"""
 		# Only for unbounded methods: push up the negllh for parameters a<0 to effectively restrict to positive values of a
 		if np.any(a < 0):
